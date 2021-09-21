@@ -1,0 +1,21 @@
+customer_id,username,first_name,last_name,country,town,is_active
+1,jvn_dhl,Jeevan,Dahal,Nepal,Kathmandu,TRUE
+2,prm_gtm,Pramod,Gautam,Nepal,Pokhara,TRUE
+3,jwn_nrl,Jiwan,Niroula,Nepal,Kathmandu,TRUE
+4,rzn_rai,Raazan,Rai,Nepal,Pokhara,TRUE
+5,tej_prj,Tej,Parajuli,Nepal,Kathmandu,TRUE
+6,prbt_gtm,Prabhat,Gautam,Nepal,Hetauda,TRUE
+7,smr_slwl,Samir,Silwal,Nepal,Kathmandu,TRUE
+8,srj_rana,Saroj,Rana,Nepal,Kathmandu,TRUE
+9,spa_pya,Spandan,Pyakurel,Nepal,Hetauda,TRUE
+10,sum_shr,Suman,Shrestha,Nepal,Kathmandu,TRUE
+11,ani_ach,Anima,Acharya,Nepal,Hetauda,TRUE
+12,kri_rai,Krishna,Rai,Nepal,Kathmandu,TRUE
+13,sam_dah,Samana,Dahal,Nepal,Pokhara,TRUE
+14,san_sha,Sandhya,Sahi,Nepal,Kathmandu,TRUE
+15,pun_dwl,Punya Ram,Duwal,Nepal,Pokhara,TRUE
+16,anis_slwl,Anish,Silwal,Nepal,Hetauda,TRUE
+17,sap_sag,Sagun,Sapkota,Nepal,Pokhara,TRUE
+18,nir_prdn,Niraj,Pradhan,Nepal,Lalitpur,TRUE
+19,shr_viv,Vivek,Shrestha,Nepal,Kathmandu,TRUE
+20,sms,Sudeep,Shrestha,Nepal,Kathmandu,TRUE
