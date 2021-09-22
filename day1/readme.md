@@ -178,7 +178,7 @@ FROM (
 
 2. Check if part time employees are assigned other fte_status.
 
-I have used logic where part time employees can work 20 hours a week only.
+
 ```
 SELECT
     COUNT(*) AS impacted_record_count,
@@ -187,7 +187,7 @@ SELECT
         ELSE 'passed'
     END AS test_status
 FROM employee
-WHERE fte_status = 'Part Time' AND CAST(weekly_hours as FLOAT) > 20;
+WHERE fte_status = 'Full Time' AND CAST(fte AS FLOAT) <= 0.6;
 ```
 
 3. Check if termed employees are marked as active.
@@ -201,7 +201,7 @@ SELECT
         ELSE 'passed'
     END AS test_status
 FROM employee
-WHERE term_date IS NOT NULL AND is_active='TRUE';
+WHERE term_date IS NOT NULL AND CAST(is_active as BOOL)=TRUE;
 ```
 
 4. Check if the same product is listed more than once in a single bill.
@@ -283,13 +283,19 @@ WHERE CAST(weekly_hours AS FLOAT) > 24;
 
 Those who have on_call_hour as 0 must have was_on_call as true to meet this condition.
 ```
-SELECT COUNT(*) AS impacted_record_count,
-       CASE
-           WHEN COUNT(*) > 0 THEN 'failed'
-           ELSE 'passed'
-       END  AS test_status
-FROM timesheet
-WHERE CAST(on_call_hour AS FLOAT) = 0 AND was_on_call = 'true';
+SELECT
+	COUNT(*) as impacted_record_count,
+	CASE
+		WHEN COUNT(*)>0 THEN 'failed'
+		ELSE 'passed'
+	END AS test_status
+FROM
+	timesheet t
+INNER JOIN timesheet_raw tr 
+    ON t.employee_id = tr.employee_id
+	AND t.shift_date = tr.punch_apply_date
+	AND tr.paycode <> 'ON_CALL'
+	AND CAST(t.was_on_call as BOOL) = TRUE;
 ```
 
 9. Check if the break is true for employees who have not taken a break at all.
@@ -297,13 +303,19 @@ WHERE CAST(on_call_hour AS FLOAT) = 0 AND was_on_call = 'true';
 Those who have break_hour as 0 must have has_taken_break as true to meet this condition.
 
 ```
-SELECT COUNT(*) AS impacted_record_count,
-       CASE
-           WHEN COUNT(*) > 0 THEN 'failed'
-           ELSE 'passed'
-       END  AS test_status
-FROM timesheet
-WHERE CAST(break_hour AS FLOAT) = 0 AND has_taken_break = 'true';
+SELECT
+	COUNT(*) as impacted_record_count,
+	CASE
+		WHEN COUNT(*)>0 THEN 'failed'
+		ELSE 'passed'
+	END AS test_status
+FROM
+	timesheet t
+INNER JOIN timesheet_raw tr 
+    ON t.employee_id = tr.employee_id
+	AND t.shift_date = tr.punch_apply_date
+	AND tr.paycode != 'BREAK'
+	AND CAST(t.has_taken_break AS BOOL) = TRUE;
 ```
 
 10. Check if the night shift is not assigned to the employees working on the night shift.
@@ -317,5 +329,5 @@ SELECT COUNT(*) AS impacted_record_count,
            ELSE 'passed'
        END  AS test_status
 FROM timesheet
-WHERE shift_type = 'Day' AND shift_start_time :: time >'14:00:00';
+WHERE shift_type <> 'Night' AND shift_end_time :: time >= '20:00:00';
 ```
