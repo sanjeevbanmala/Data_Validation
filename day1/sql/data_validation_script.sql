@@ -91,34 +91,37 @@ FROM employee
 WHERE CAST(weekly_hours AS FLOAT) > 24;
 
 --Check if non on-call employees are set as on-call.
-SELECT
-	COUNT(*) as impacted_record_count,
-	CASE
-		WHEN COUNT(*)>0 THEN 'failed'
-		ELSE 'passed'
-	END AS test_status
-FROM
-	timesheet t
-INNER JOIN timesheet_raw tr 
-    ON t.employee_id = tr.employee_id
-	AND t.shift_date = tr.punch_apply_date
-	AND tr.paycode <> 'ON_CALL'
-	AND CAST(t.was_on_call as BOOL) = TRUE;
+WITH cte AS (
+   SELECT employee_id, punch_apply_date, 
+	CASE WHEN paycode= 'BREAK' THEN true ELSE false END as has_taken_break,
+	CASE WHEN paycode= 'CHARGE' THEN true ELSE false END as was_on_charge,
+	CASE WHEN paycode= 'ON_CALL' THEN true ELSE false END as was_on_call
+   FROM timesheet_raw
+)
+
+SELECT * FROM  cte where was_on_call = false
+
+INTERSECT
+SELECT employee_id, shift_date,CAST(has_taken_break as BOOL),CAST(was_charge AS BOOL), CAST(was_on_call as BOOL) 
+FROM timesheet
+where CAST(was_on_call as BOOL) =TRUE
+;
 
 --Check if the break is true for employees who have not taken a break at all.
-SELECT
-	COUNT(*) as impacted_record_count,
-	CASE
-		WHEN COUNT(*)>0 THEN 'failed'
-		ELSE 'passed'
-	END AS test_status
-FROM
-	timesheet t
-INNER JOIN timesheet_raw tr 
-    ON t.employee_id = tr.employee_id
-	AND t.shift_date = tr.punch_apply_date
-	AND tr.paycode != 'BREAK'
-	AND CAST(t.has_taken_break AS BOOL) = TRUE;
+WITH cte AS (
+   SELECT employee_id, punch_apply_date, 
+	CASE WHEN paycode= 'BREAK' THEN true ELSE false END as has_taken_break,
+	CASE WHEN paycode= 'CHARGE' THEN true ELSE false END as was_on_charge,
+	CASE WHEN paycode= 'ON_CALL' THEN true ELSE false END as was_on_call
+   FROM timesheet_raw
+)
+SELECT * FROM  cte where has_taken_break = false
+
+INTERSECT
+SELECT employee_id, shift_date,CAST(has_taken_break as BOOL),CAST(was_charge AS BOOL), CAST(was_on_call as BOOL) 
+FROM timesheet
+where CAST(has_taken_break as BOOL) =TRUE
+;
 
 --Check if the night shift is not assigned to the employees working on the night shift.
 SELECT COUNT(*) AS impacted_record_count,
